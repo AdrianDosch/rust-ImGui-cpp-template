@@ -25,7 +25,18 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-extern "C" void create_gui()
+extern "C" struct Handle {
+    void* window;
+    ImGuiIO* io;
+};
+
+extern "C" struct Variables {
+    bool show_demo_window;
+    bool show_another_window;
+    float color[4];
+};
+
+extern "C" Handle init_gui()
 {
     std::cout << "hallo von  c++\n";
     // Setup window
@@ -105,15 +116,31 @@ extern "C" void create_gui()
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
+    Handle handle;
+    handle.window = (void*)window;
+    handle.io = static_cast<ImGuiIO*>(&io);
+    return handle;
+}
 
-    // Our state
-    bool show_demo_window = true;
-    bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    // // Our state
+    // bool show_demo_window = true;
+    // bool show_another_window = false;
+    // ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+extern "C" bool close_window(GLFWwindow* window) {
+    return glfwWindowShouldClose(window);
+}
+
+extern "C" void update_gui(Handle handle, Variables* vars) {
+    GLFWwindow* window = (GLFWwindow*) handle.window;
+    ImGuiIO& io = static_cast<ImGuiIO>(*handle.io);
+
+    bool& show_demo_window = vars->show_demo_window;
+    bool& show_another_window = vars->show_another_window;
+    ImVec4 clear_color = ImVec4(vars->color[0], vars->color[1], vars->color[2], vars->color[3]);
     // Main loop
-    while (!glfwWindowShouldClose(window))
-    {
+    // while (!glfwWindowShouldClose(window))
+    // {
         // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
@@ -129,6 +156,7 @@ extern "C" void create_gui()
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
+
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
@@ -184,8 +212,19 @@ extern "C" void create_gui()
         }
 
         glfwSwapBuffers(window);
-    }
 
+        //actually change the variables
+        // ImVec4 clear_color = ImVec4(vars->color[0], vars->color[1], vars->color[2], vars->color[3]);       
+        vars->color[0] = clear_color.x;
+        vars->color[1] = clear_color.y;
+        vars->color[2] = clear_color.z;
+        vars->color[3] = clear_color.w;
+        
+    // }
+}
+
+extern "C" void destroy_gui(void* window1) {
+    GLFWwindow* window = (GLFWwindow*)window1;
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -193,6 +232,4 @@ extern "C" void create_gui()
 
     glfwDestroyWindow(window);
     glfwTerminate();
-
-    //return 0;
 }
