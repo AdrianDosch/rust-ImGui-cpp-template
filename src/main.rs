@@ -25,6 +25,7 @@ extern "C" {
 
 fn main() {
     unsafe {
+        
         let mut vars = Variables {
             show_demo_window: true,
             show_another_window: true,

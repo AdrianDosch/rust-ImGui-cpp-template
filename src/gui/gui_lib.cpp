@@ -38,7 +38,7 @@ extern "C" struct Variables {
 
 extern "C" Handle init_gui()
 {
-    std::cout << "hallo von  c++\n";
+    // std::cout << "hallo von  c++\n";
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
