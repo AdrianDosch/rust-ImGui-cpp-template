@@ -1,30 +1,38 @@
-use std::path::Path;
+use std::{process::Command, fs, path::Path};
 use cc;
 
 fn main() {
-    // println!("cargo:rerun-if-changed=src/gui/gui_lib.cpp");
+    let imgui_str = format!("{}{}", std::env::var("OUT_DIR").unwrap(), "/imgui/");
+    let imgui_path = imgui_str.as_str();
 
-    let inclue1 = Path::new("imgui");
-    let inclue2 = Path::new("imgui/backends");
-    let inclue3 = Path::new("imgui/examples/libs/glfw/include");
+    // fs::remove_dir_all("target/debug/build/rust_imgui-9999b756f624420c/out/imgui/backends").expect("deleting error");
+    
+    //clone Dear ImGui 
+    if !Path::new(imgui_path).exists() {
+        Command::new("git").args(["clone", "https://github.com/ocornut/imgui.git", "--branch", "docking", imgui_path]).status().expect("cloning failed");
+    }
+    // Command::new("git").args(["-C", imgui_path, "pull",]).status().expect("pulling failed");
 
+    //compile Dear ImGui
     cc::Build::new()
         .cpp(true)
-        .include(inclue1)
-        .include(inclue2)
-        .include(inclue3)
+        .include(format!("{}{}", imgui_path, ""))
+        .include(format!("{}backends", imgui_path))
+        .include(format!("{}{}", imgui_path, "examples/libs/glfw/include"))
         .file("src/gui/gui_lib.cpp")
-        .file("imgui/imgui.cpp")
-        .file("imgui/imgui_draw.cpp")
-        .file("imgui/imgui_tables.cpp")
-        .file("imgui/imgui_widgets.cpp")
-        .file("imgui/backends/imgui_impl_opengl3.cpp")
-        .file("imgui/backends/imgui_impl_glfw.cpp")
-        .file("imgui/imgui_demo.cpp")
+        .file(format!("{}{}", imgui_path, "imgui.cpp"))
+        .file(format!("{}{}", imgui_path, "imgui_draw.cpp"))
+        .file(format!("{}{}", imgui_path, "imgui_tables.cpp"))
+        .file(format!("{}{}", imgui_path, "imgui_widgets.cpp"))
+        .file(format!("{}backends/imgui_impl_opengl3.cpp", imgui_path))
+        .file(format!("{}backends/imgui_impl_glfw.cpp", imgui_path))
+        .file(format!("{}backends/imgui_impl_glfw.cpp", imgui_path))
+        .file(format!("{}{}", imgui_path, "imgui_demo.cpp"))
         .compile("gui_lib_cc");
     
+    //link everything
     println!("cargo:rustc-link-lib=glfw3");
-    println!("cargo:rustc-link-search=imgui/examples/libs/glfw/lib-vc2010-64");
+    println!("{}", format!("cargo:rustc-link-search={}examples/libs/glfw/lib-vc2010-64", imgui_path));
 
     println!("cargo:rustc-link-lib=gdi32");
     println!("cargo:rustc-link-lib=opengl32");

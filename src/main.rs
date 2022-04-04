@@ -24,6 +24,7 @@ extern "C" {
 }
 
 fn main() {
+    println!("out_dir: {}", env!("OUT_DIR"));
     unsafe {
         
         let mut vars = Variables {
