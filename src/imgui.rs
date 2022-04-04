@@ -15,8 +15,8 @@ pub struct Window1 {
 }
 
 #[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct Handle {
+#[derive(Debug, Clone)]
+pub struct GUI {
     pub window: &'static c_void,
     pub io: &'static c_void
 }
@@ -31,8 +31,28 @@ pub struct ImVec4 {
 }
 
 extern "C" {
-    pub fn init_gui() -> Handle;
-    pub fn update_gui(handle: Handle, vars: &mut Variables) -> ();
-    pub fn destroy_gui(window: &c_void) -> ();
-    pub fn close_window(window: &c_void) -> bool;
+    fn init_gui() -> GUI;
+    fn update_gui(GUI: GUI, vars: &mut Variables) -> ();
+    fn destroy_gui(window: &c_void) -> ();
+    fn close_window(window: &c_void) -> bool;
+}
+
+impl GUI {
+    pub fn new() -> GUI {
+        unsafe {init_gui()}
+    }
+
+    pub fn terminate(&self) -> bool {
+        unsafe {close_window(self.window)}
+    }
+
+    pub fn update(&self, vars: &mut Variables) {
+        unsafe {update_gui(self.clone(), vars)}
+    }
+}
+
+impl Drop for GUI {
+    fn drop(&mut self) {
+        unsafe {destroy_gui(self.window)}
+    }
 }

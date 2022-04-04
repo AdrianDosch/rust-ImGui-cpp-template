@@ -1,4 +1,4 @@
-// Dear ImGui: standalone example application for GLFW + OpenGL 3, using programmable pipeline
+// Dear ImGui: standalone example application for GLFW + OpenGL 3, using programmable pipeline <------- This is the example this file originated form.
 // (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan/Metal graphics context creation, etc.)
 // If you are new to Dear ImGui, read documentation from the docs/ folder + read the top of imgui.cpp.
 // Read online: https://github.com/ocornut/imgui/tree/master/docs
@@ -60,7 +60,7 @@ void define_guis(Variables* vars) {
         }
 }
 
-extern "C" struct Handle {
+extern "C" struct GUI {
     GLFWwindow* window;
     ImGuiIO* io;
 };
@@ -70,9 +70,8 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-extern "C" Handle init_gui()
+extern "C" GUI init_gui()
 {
-    // std::cout << "hallo von  c++\n";
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
@@ -150,10 +149,10 @@ extern "C" Handle init_gui()
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
-    Handle handle;
-    handle.window = window;
-    handle.io = static_cast<ImGuiIO*>(&io);
-    return handle;
+    GUI gui;
+    gui.window = window;
+    gui.io = static_cast<ImGuiIO*>(&io);
+    return gui;
 }
 
 extern "C" bool close_window(GLFWwindow* window) {
@@ -174,8 +173,8 @@ void start_frame() {
     ImGui::NewFrame();
 }
 
-void end_frame(Handle handle, ImVec4 clear_color) {
-           // Rendering
+void end_frame(GUI handle, ImVec4 clear_color) {
+        // Rendering
         ImGui::Render();
         int display_w, display_h;
         glfwGetFramebufferSize(handle.window, &display_w, &display_h);
@@ -198,19 +197,18 @@ void end_frame(Handle handle, ImVec4 clear_color) {
         glfwSwapBuffers(handle.window);
 }
 
-extern "C" void update_gui(Handle handle, Variables* vars) {  
+extern "C" void update_gui(GUI handle, Variables* vars) {  
     start_frame();
     define_guis(vars);
     end_frame(handle, vars->color);
 }
 
-extern "C" void destroy_gui(void* window1) {
-    GLFWwindow* window = (GLFWwindow*)window1;
+extern "C" void destroy_gui(void* window) {
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
-    glfwDestroyWindow(window);
+    glfwDestroyWindow((GLFWwindow*)window);
     glfwTerminate();
 }
