@@ -1,5 +1,5 @@
 
-use std::{ffi::c_void, env::VarError};
+use std::{ffi::c_void};
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
@@ -24,9 +24,7 @@ extern "C" {
 }
 
 fn main() {
-    println!("out_dir: {}", env!("OUT_DIR"));
     unsafe {
-        
         let mut vars = Variables {
             show_demo_window: true,
             show_another_window: true,
@@ -36,7 +34,6 @@ fn main() {
         while !close_window(handle.window) {
             update_gui(handle, &mut vars);
         }
-        // update_gui(handle);
         destroy_gui(handle.window);
     }
 }
