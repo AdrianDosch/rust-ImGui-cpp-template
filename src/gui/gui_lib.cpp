@@ -197,14 +197,15 @@ void end_frame(GUI handle, ImVec4 clear_color) {
         glfwSwapBuffers(handle.window);
 }
 
-extern "C" void update_gui(GUI handle, Variables* vars) {  
+extern "C" void update_gui(GUI* handle, Variables* vars) {  
     start_frame();
     define_guis(vars);
-    end_frame(handle, vars->color);
+    end_frame(*handle, vars->color);
 }
 
 extern "C" void destroy_gui(void* window) {
     // Cleanup
+    std::cout << "edn c++\n";
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
