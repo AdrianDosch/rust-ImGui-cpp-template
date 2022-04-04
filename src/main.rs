@@ -1,34 +1,11 @@
-
-use std::{ffi::c_void};
-
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-struct Handle {
-    window: &'static c_void,
-    io: &'static c_void
-}
-
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-struct Variables {
-    show_demo_window: bool,
-    show_another_window: bool,
-    color: [f32; 4]
-}
-
-extern "C" {
-    fn init_gui() -> Handle;
-    fn update_gui(handle: Handle, vars: &mut Variables) -> ();
-    fn destroy_gui(window: &c_void) -> ();
-    fn close_window(window: &c_void) -> bool;
-}
+mod imgui;
+use imgui::*;
 
 fn main() {
     unsafe {
         let mut vars = Variables {
-            show_demo_window: true,
-            show_another_window: true,
-            color: [0.1, 0.1, 0.1, 1.0]
+            window1: Window1 { show_demo_window: false, show_another_window: true },
+            color: ImVec4::default()
         };
         let handle = init_gui();
         while !close_window(handle.window) {
